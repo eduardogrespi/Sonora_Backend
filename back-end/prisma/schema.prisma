@@ -5,96 +5,118 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 // Nomes de model no Prisma devem estar
 // no singular e iniciar com LetraMaiúscula
 model Categoria {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  descricao   String
-  produtos    Produto[]
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  descricao   String
+  produtos    Produto[]
 }
 
 model Cliente {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  nome              String
-  cpf               String    @unique     // Não pode se repetir na coleção
-  data_nascimento   DateTime? // opcional
-  email             String    @unique
-  logradouro        String    
-  num_imovel        String
-  complemento       String?   // opcional
-  bairro            String
-  municipio         String
-  uf                String
-  cep               String
-  celular           String
-  pedidos           Pedido[]
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  nome              String
+  cpf               String    @unique     // Não pode se repetir na coleção
+  data_nascimento   DateTime? // opcional
+  email             String    @unique
+  logradouro        String    
+  num_imovel        String
+  complemento       String?   // opcional
+  bairro            String
+  municipio         String
+  uf                String
+  cep               String
+  celular           String
+  pedidos           Pedido[]
 }
 
 model Fornecedor {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  razao_social      String
-  nome_fantasia     String?
-  cnpj              String        @unique
-  email             String        @unique
-  logradouro        String
-  num_casa          String
-  complemento       String?
-  bairro            String
-  municipio         String
-  uf                String
-  cep               String
-  celular           String
-  produtos          Produto[]     @relation(fields: [produto_ids], references: [id])
-  produto_ids       String[]      @db.ObjectId
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  razao_social      String
+  nome_fantasia     String?
+  cnpj              String        @unique
+  email             String        @unique
+  logradouro        String
+  num_casa          String
+  complemento       String?
+  bairro            String
+  municipio         String
+  uf                String
+  cep               String
+  celular           String
+  produtos          Produto[]     @relation(fields: [produto_ids], references: [id])
+  produto_ids       String[]      @db.ObjectId
 
 }
 
 model Pedido {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  num_pedido        Int           @unique
-  data_hora         DateTime      @default(now())
-  cliente_id        String        @db.ObjectId
-  cliente           Cliente       @relation(fields: [cliente_id], references: [id])
-  itens             ItemPedido[]
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  num_pedido        Int           @unique
+  data_hora         DateTime      @default(now())
+  cliente_id        String        @db.ObjectId
+  cliente           Cliente       @relation(fields: [cliente_id], references: [id])
+  itens             ItemPedido[]
 }
 
 model Produto {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  nome              String
-  marca             String
-  detalhes          String?
-  quantidade        Float
-  unidade_medida    String
-  preco_unitario    Float
-  qtd_estoque       Float
-  categoria_id      String        @db.ObjectId
-  categoria         Categoria     @relation(fields: [categoria_id], references: [id])
-  fornecedores      Fornecedor[]  @relation(fields: [fornecedor_ids], references: [id])
-  fornecedor_ids    String[]      @db.ObjectId
-  itens_pedido      ItemPedido[]
- }
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  nome              String
+  marca             String
+  detalhes          String?
+  quantidade        Float
+  unidade_medida    String
+  preco_unitario    Float
+  qtd_estoque       Float
+  categoria_id      String        @db.ObjectId
+  categoria         Categoria     @relation(fields: [categoria_id], references: [id])
+  fornecedores      Fornecedor[]  @relation(fields: [fornecedor_ids], references: [id])
+  fornecedor_ids    String[]      @db.ObjectId
+  itens_pedido      ItemPedido[]
+ }
 
 
- model ItemPedido {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  num_item          Int
-  quantidade        Float
-  produto_id        String        @db.ObjectId
-  produto           Produto       @relation(fields: [produto_id], references: [id])
-  pedido_id         String        @db.ObjectId
-  pedido            Pedido        @relation(fields: [pedido_id], references: [id])
+model ItemPedido {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  num_item          Int
+  quantidade        Float
+  produto_id        String        @db.ObjectId
+  produto           Produto       @relation(fields: [produto_id], references: [id])
+  pedido_id         String        @db.ObjectId
+  pedido            Pedido        @relation(fields: [pedido_id], references: [id])
 
-  // Índice único nos campos pedido_id e num_item para impedir
-  // a repetição do número do item dentro do mesmo pedido
-  @@unique([pedido_id, num_item])
+  // Índice único nos campos pedido_id e num_item para impedir
+  // a repetição do número do item dentro do mesmo pedido
+  @@unique([pedido_id, num_item])
 }
 
+model Artista {
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  nome               String     @unique
+  genero_musical     String     @map("generoMusical")
+  bio                String?
+  redes_sociais      String[]   @map("redesSociais")
+  email              String     @unique
+  telefone           String?
+  eventos            Evento[]
+}
+
+model Evento {
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  artista_id         String     @db.ObjectId @map("artistaID")
+  artista            Artista    @relation(fields: [artista_id], references: [id])
+  data               DateTime
+  local              String
+  descricao          String?
+  preco_ingresso     Float      @map("precoIngresso")
+
+  @@index([artista_id])
+}
