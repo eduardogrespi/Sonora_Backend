@@ -8,11 +8,12 @@ controller.create = async function(req, res) {
     Cria um novo registro de Evento
   */
   try {
-    const { artista_id, data, local, preco_ingresso } = req.body;
+    // ATUALIZADO: Incluir 'nome' e 'horario' na validação
+    const { artista_id, data, local, nome, horario, preco_ingresso } = req.body;
 
     // Validação de campos obrigatórios
-    if (!artista_id || !data || !local || preco_ingresso === undefined) {
-      return res.status(400).send({ error: 'Os campos artista_id, data, local e preco_ingresso são obrigatórios.' });
+    if (!artista_id || !data || !local || !nome || !horario || preco_ingresso === undefined) {
+      return res.status(400).send({ error: 'Os campos artista_id, data, local, nome, horario e preco_ingresso são obrigatórios.' });
     }
 
     // Ajuste de tipos (converte data para objeto Date)

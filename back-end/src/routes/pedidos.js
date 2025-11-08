@@ -15,6 +15,9 @@ router.put('/:id', controller.update)
 
 router.delete('/:id', controller.delete)
 
+// NOVO: Rota para simular o checkout (mudando status de 'pending' para 'ordered')
+router.post('/:id/checkout', controller.checkout)
+
 // Rotas para os itens do pedido
 router.post('/:id/itens', controller.createItem)
 router.get('/:id/itens', controller.retrieveAllItems)

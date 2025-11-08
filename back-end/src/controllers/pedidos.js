@@ -5,26 +5,68 @@ const controller = {}   // Objeto vazio
 
 controller.create = async function(req, res) {
   /*
-    Conecta-se ao banco de dados e envia uma instrução
-    de criação de um novo documento, contendo os dados
-    que chegaram dentro da seção "body" da requisição
-    ("req")
+    Cria um novo Pedido/Carrinho. O campo 'status' (default 'pending')
+    permite ao front-end usar esta entidade como um carrinho simples.
   */
   try {
-    await prisma.pedido.create({ data: req.body })
+    const { cliente_id } = req.body;
+    
+    // Validação mínima para garantir que o pedido/carrinho tenha um cliente associado
+    if (!cliente_id) {
+        return res.status(400).send({ error: 'O campo cliente_id é obrigatório para criar um pedido/carrinho.' });
+    }
 
-    // Envia um código de sucesso ao front-end
+    const data = await prisma.pedido.create({ data: req.body })
+
+    // Envia um código de sucesso ao front-end, retornando o ID do novo pedido (carrinho)
     // HTTP 201: Created
-    res.status(201).end()
+    res.status(201).send({ id: data.id })
   }
   catch(error) {
     // Algo deu errado: exibe o erro no terminal
     console.error(error)
 
+    // P2003: Falha na chave estrangeira (cliente_id não existe)
+    if(error?.code === 'P2003') {
+        return res.status(400).send({ error: 'ClienteID fornecido não existe.' });
+    }
+
     // Envia o erro ao front-end, com código de erro
     // HTTP 500: Internal Server Error
     res.status(500).send(error)
   }
+}
+
+// NOVO: Função para o checkout, alterando o status do pedido para 'ordered'
+controller.checkout = async function(req, res) {
+    try {
+        // Busca se existe um pedido com o ID e status 'pending' para ser atualizado
+        const pedido = await prisma.pedido.findUnique({
+            where: { id: req.params.id }
+        })
+
+        if (!pedido) {
+             return res.status(404).end();
+        }
+
+        // Simula a transição de um carrinho (pending) para um pedido finalizado (ordered)
+        await prisma.pedido.update({
+            where: { id: req.params.id },
+            data: { status: 'ordered' }
+        })
+        
+        res.status(204).end() // HTTP 204: No Content
+    }
+    catch(error) {
+        console.error(error)
+        if(error?.code === 'P2025') {
+            // Não encontrou o pedido
+            res.status(404).end()
+        }
+        else {
+            res.status(500).send(error)
+        }
+    }
 }
 
 

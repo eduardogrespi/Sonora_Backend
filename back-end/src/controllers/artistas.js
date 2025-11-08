@@ -6,20 +6,23 @@ const controller = {}  
 controller.create = async function(req, res) {
   /*
     Cria um novo registro de Artista, garantindo que os dados obrigatórios
-    (nome, genero_musical, email) estejam presentes no corpo da requisição.
+    (nome, genero_musical, email, senha) estejam presentes no corpo da requisição.
   */
   try {
-    const { nome, genero_musical, email } = req.body;
+    // ATUALIZADO: Incluir 'senha' na validação
+    const { nome, genero_musical, email, senha } = req.body;
 
     // Validação de campos obrigatórios antes de tentar criar
-    if (!nome || !genero_musical || !email) {
-      return res.status(400).send({ error: 'Os campos nome, genero_musical e email são obrigatórios.' });
+    if (!nome || !genero_musical || !email || !senha) {
+      return res.status(400).send({ error: 'Os campos nome, genero_musical, email e senha são obrigatórios.' });
     }
 
+    // O req.body já inclui senha, bio, redes_sociais, links_musica, fotos_perfil, e telefone
     await prisma.artista.create({ data: req.body })
 
     // HTTP 201: Created
-    res.status(201).end()
+    // O retorno pode incluir o ID do novo artista (necessário para o frontend)
+    res.status(201).send({ id: data.id })
   }
   catch(error) {
     console.error(error)

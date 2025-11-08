@@ -11,15 +11,27 @@ controller.create = async function(req, res) {
     ("req")
   */
   try {
-    await prisma.cliente.create({ data: req.body })
+    // ATUALIZADO: Incluir 'senha' e 'cpf' na validação
+    const { nome, email, senha, cpf } = req.body;
+
+    if (!nome || !email || !senha || !cpf) {
+      return res.status(400).send({ error: 'Os campos nome, email, senha e cpf são obrigatórios.' });
+    }
+
+    const data = await prisma.cliente.create({ data: req.body })
 
     // Envia um código de sucesso ao front-end
-    // HTTP 201: Created
-    res.status(201).end()
+    // HTTP 201: Created. Retorna o ID do cliente.
+    res.status(201).send({ id: data.id })
   }
   catch(error) {
     // Algo deu errado: exibe o erro no terminal
     console.error(error)
+
+    // P2002: Tentativa de inserção com email ou cpf duplicado (@unique)
+    if(error?.code === 'P2002') {
+      return res.status(400).send({ error: 'Email ou CPF já cadastrado.' });
+    }
 
     // Envia o erro ao front-end, com código de erro
     // HTTP 500: Internal Server Error

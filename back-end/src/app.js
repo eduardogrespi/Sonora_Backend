@@ -38,4 +38,11 @@ app.use('/artistas', artistasRouter)
 import eventosRouter from './routes/eventos.js'
 app.use('/eventos', eventosRouter)
 
+// NOVAS ROTAS IMPLEMENTADAS
+import comentariosRouter from './routes/comentarios.js'
+app.use('/comentarios', comentariosRouter)
+
+import participacoesRouter from './routes/participacoes.js'
+app.use('/participacoes', participacoesRouter)
+
 export default app
