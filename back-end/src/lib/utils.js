@@ -3,6 +3,8 @@
   e verifica se o parâmetro "include" foi passado. Em caso
   positivo, preenche um objeto com os relacionamentos que
   devem ser incluídos na consulta sendo executada
+
+  CORREÇÃO: Implementa suporte a aninhamento (dot notation, ex: 'relacao.campo')
 */
 function includeRelations(query) {
 
@@ -15,15 +17,27 @@ function includeRelations(query) {
     // relacionamentos informados onde há vírgula
     const relations = query.include.split(',')
 
-    // Preenche a const "include" com as relações informadas
+    // Percorre cada relação para construir o objeto de inclusão aninhado
     for(let rel of relations) {
-      // Include de 2º nível (único caso nesta aplicação)
-      if(rel === 'itens.produto') {
-        include.itens = {
-          include: { produto: true }
+        const parts = rel.split('.');
+        let currentLevel = include;
+
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            
+            if (i === parts.length - 1) {
+                // Última parte da relação (o campo real)
+                currentLevel[part] = true;
+            } else {
+                // Parte intermediária (precisa de um objeto 'include' aninhado)
+                if (!currentLevel[part]) {
+                    // Se o nível não existe, cria como { include: {} }
+                    currentLevel[part] = { include: {} };
+                }
+                // Move para o próximo nível de aninhamento (dentro do 'include')
+                currentLevel = currentLevel[part].include;
+            }
         }
-      }
-      else include[rel] = true
     }
   }
 

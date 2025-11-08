@@ -9,7 +9,7 @@ controller.create = async function(req, res) {
     (nome, genero_musical, email, senha) estejam presentes no corpo da requisição.
   */
   try {
-    // ATUALIZADO: Incluir 'senha' na validação
+    // Incluir 'senha' na validação
     const { nome, genero_musical, email, senha } = req.body;
 
     // Validação de campos obrigatórios antes de tentar criar
@@ -17,11 +17,11 @@ controller.create = async function(req, res) {
       return res.status(400).send({ error: 'Os campos nome, genero_musical, email e senha são obrigatórios.' });
     }
 
-    // O req.body já inclui senha, bio, redes_sociais, links_musica, fotos_perfil, e telefone
-    await prisma.artista.create({ data: req.body })
+    // CORRIGIDO: Capturando o resultado do insert na variável 'data'
+    const data = await prisma.artista.create({ data: req.body })
 
     // HTTP 201: Created
-    // O retorno pode incluir o ID do novo artista (necessário para o frontend)
+    // O retorno inclui o ID do novo artista (necessário para o frontend)
     res.status(201).send({ id: data.id })
   }
   catch(error) {
